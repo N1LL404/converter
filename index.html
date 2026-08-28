@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Format Converter</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .box {
+      width: 500px;
+      background: #1c1c1c;
+      padding: 25px;
+      border-radius: 12px;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px;
+      font-size: 16px;
+      border: 1px solid #444;
+      border-radius: 7px;
+      background: #292929;
+      color: white;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 12px;
+      padding: 14px;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    #convert {
+      background: #2563eb;
+      color: white;
+    }
+
+    #copy {
+      background: #333;
+      color: white;
+    }
+
+    #output {
+      margin-top: 15px;
+      padding: 14px;
+      background: #090909;
+      border-radius: 7px;
+      word-break: break-all;
+      min-height: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <h2>Format Converter</h2>
+
+  <input
+    id="input"
+    type="text"
+    placeholder="  "
+    autocomplete="off"
+  >
+
+  <button id="convert" onclick="convertData()">Convert</button>
+
+  <div id="output"></div>
+
+  <button id="copy" onclick="copyResult()">Copy Result</button>
+
+</div>
+
+<script>
+function convertData() {
+  const input = document.getElementById("input").value.trim();
+
+  // Example:
+  //   
+
+  const match = input.match(
+    /^(\d+)\s+(\d{1,2})\/(\d{2,4})\s+(\d+)$/
+  );
+
+  if (!match) {
+    document.getElementById("output").textContent =
+      "Invalid format. Example:   ";
+    return;
+  }
+
+  let [, number, month, year, code] = match;
+
+  month = month.padStart(2, "0");
+
+  const result = `${number}|${month}|${year}|${code}`;
+
+  document.getElementById("output").textContent = result;
+}
+
+function copyResult() {
+  const output = document.getElementById("output").textContent;
+
+  if (!output || output.startsWith("Invalid")) return;
+
+  navigator.clipboard.writeText(output);
+}
+
+// Convert automatically when Enter is pressed
+document.getElementById("input").addEventListener("keydown", function(event) {
+  if (event.key === "Enter") {
+    convertData();
+  }
+});
+</script>
+
+</body>
+</html>
