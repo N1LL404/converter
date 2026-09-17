@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,7 +25,7 @@
       border-radius: 12px;
     }
 
-    input {
+    textarea {
       width: 100%;
       box-sizing: border-box;
       padding: 14px;
@@ -34,6 +35,8 @@
       background: #292929;
       color: white;
       outline: none;
+      resize: vertical;
+      min-height: 120px;
     }
 
     button {
@@ -73,58 +76,83 @@
 
   <h2>Format Converter</h2>
 
-  <input
+  <textarea
     id="input"
-    type="text"
-    placeholder="  "
+    placeholder="Put Data here"
     autocomplete="off"
-  >
-
+  ></textarea>
   <button id="convert" onclick="convertData()">Convert</button>
-
   <div id="output"></div>
-
   <button id="copy" onclick="copyResult()">Copy Result</button>
-
 </div>
-
 <script>
 function convertData() {
   const input = document.getElementById("input").value.trim();
+  const output = document.getElementById("output");
 
-  // Example:
-  //   
-
-  const match = input.match(
+  if (!input) {
+    output.textContent = "Please enter data.";
+    return;
+  }
+  let number, month, year, code;
+  const normalMatch = input.match(
     /^(\d+)\s+(\d{1,2})\/(\d{2,4})\s+(\d+)$/
   );
 
-  if (!match) {
-    document.getElementById("output").textContent =
-      "Invalid format. Example:   ";
-    return;
+  if (normalMatch) {
+    [, number, month, year, code] = normalMatch;
+  }
+  if (!normalMatch) {
+
+    const ccMatch = input.match(
+      /(?:^|\n)\s*[-*]?\s*cc\s*:\s*(\d+)/i
+    );
+
+    const expMatch = input.match(
+      /(?:^|\n)\s*[-*]?\s*exp\s*:\s*(\d{1,2})\s*\/\s*(\d{2,4})/i
+    );
+
+    const cvvMatch = input.match(
+      /(?:^|\n)\s*[-*]?\s*cvv\s*:\s*(\d+)/i
+    );
+
+    if (ccMatch && expMatch && cvvMatch) {
+      number = ccMatch[1];
+      month = expMatch[1];
+      year = expMatch[2];
+      code = cvvMatch[1];
+    }
   }
 
-  let [, number, month, year, code] = match;
+  if (!number || !month || !year || !code) {
+    output.textContent = "Invalid format.";
+    return;
+  }
 
   month = month.padStart(2, "0");
 
   const result = `${number}|${month}|${year}|${code}`;
 
-  document.getElementById("output").textContent = result;
+  output.textContent = result;
 }
 
 function copyResult() {
   const output = document.getElementById("output").textContent;
 
-  if (!output || output.startsWith("Invalid")) return;
+  if (
+    !output ||
+    output === "Invalid format." ||
+    output === "Please enter data."
+  ) {
+    return;
+  }
 
   navigator.clipboard.writeText(output);
 }
 
-// Convert automatically when Enter is pressed
+// Ctrl + Enter = Convert
 document.getElementById("input").addEventListener("keydown", function(event) {
-  if (event.key === "Enter") {
+  if (event.key === "Enter" && event.ctrlKey) {
     convertData();
   }
 });
